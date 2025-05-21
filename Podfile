@@ -7,6 +7,12 @@ target 'RecipeApp' do
 
   # Pods for RecipeApp
 
+    pod 'SDWebImage'                  # Image loading/caching
+    pod 'RxSwift'                     # Reactive programming
+    pod 'RxCocoa'                     # RxSwift UIKit bindings
+    pod 'Swinject'                    # Dependency injection
+    #pod 'Alamofire'                  # Networking
+
   target 'RecipeAppTests' do
     inherit! :search_paths
     # Pods for testing
