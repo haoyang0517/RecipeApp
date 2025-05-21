@@ -1,5 +1,5 @@
 //
-//  RecipeDataSources.swift
+//  RecipeLocalDataSources.swift
 //  RecipeApp
 //
 //  Created by Hao Yang Yip on 21/05/2025.
@@ -9,7 +9,9 @@ import UIKit
 
 protocol RecipeLocalDataSource {
     func fetchRecipes(type: String?) async throws -> [RecipeModel]
-    func saveRecipe(recipe: Recipe) async throws
+    func saveRecipe(recipe: RecipeModel) async throws
+    func deleteRecipe(id: UUID) async throws
+
 }
 
 class RecipeLocalDataSourceImpl: RecipeLocalDataSource {
@@ -27,28 +29,38 @@ class RecipeLocalDataSourceImpl: RecipeLocalDataSource {
         return entities.map { $0.toModel() }
     }
     
-    func saveRecipe(recipe: Recipe) async throws {
+    func saveRecipe(recipe: RecipeModel) async throws {
         let context = coreDataStack.persistentContainer.viewContext
         try await context.perform {
-            let entity = Recipe(context: context)
-            entity.id = recipe.id
+
+            let fetchRequest = Recipe.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", recipe.id as NSUUID)
+            fetchRequest.fetchLimit = 1
+            let existingEntities = try context.fetch(fetchRequest)
+            
+            let entity: Recipe
+            if let existingEntity = existingEntities.first {
+                // Edit existing recipe
+                entity = existingEntity
+            } else {
+                // Create new recipe
+                entity = Recipe(context: context)
+                entity.id = recipe.id
+            }
+            
+            // Update fields
             entity.title = recipe.title
             entity.type = recipe.type
             entity.ingredients = recipe.ingredients
             entity.steps = recipe.steps
             entity.imageData = recipe.imageData
+            
             try context.save()
         }
-//        let context = coreDataStack.persistentContainer.viewContext
-//        try await context.perform {
-//            let entity = RecipeModel(context: context)
-//            entity.id = recipe.id
-//            entity.title = recipe.title
-//            entity.type = recipe.type
-//            entity.ingredients = recipe.ingredients.joined(separator: ",")
-//            entity.steps = recipe.steps.joined(separator: ",")
-//            entity.imageData = recipe.imageData
-//            try context.save()
+    }
+
+    func deleteRecipe(id: UUID) async throws {
+
     }
 
 }

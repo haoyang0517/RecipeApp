@@ -79,8 +79,10 @@ class RecipeListViewController: UIViewController {
             .bind(to: viewModel.selectedType)
             .disposed(by: disposeBag)
         
-        tableView.rx.modelSelected(Recipe.self)
+        tableView.rx.modelSelected(RecipeModel.self)
             .subscribe(onNext: { [weak self] recipe in
+                let detailVC = AppDIContainer.shared.container.resolve(RecipeDetailViewController.self, argument: recipe)!
+                self?.navigationController?.pushViewController(detailVC, animated: true)
 
             })
             .disposed(by: disposeBag)

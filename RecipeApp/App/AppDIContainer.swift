@@ -23,12 +23,35 @@ class AppDIContainer {
         container.register(FetchRecipesUseCase.self) { r in
             FetchRecipesUseCaseImpl(repository: r.resolve(RecipeRepository.self)!)
         }
+        container.register(SaveRecipeUseCase.self) { r in
+            SaveRecipeUseCaseImpl(repository: r.resolve(RecipeRepository.self)!)
+        }
+        container.register(DeleteRecipeUseCase.self) { r in
+            DeleteRecipeUseCaseImpl(repository: r.resolve(RecipeRepository.self)!)
+        }
         container.register(RecipeListViewModel.self) { r in
             RecipeListViewModel(
                 fetchRecipesUseCase: r.resolve(FetchRecipesUseCase.self)!,
                 recipeTypeDataSource: r.resolve(RecipeTypeFileDataSource.self)!
             )
         }
+        
+        container.register(RecipeDetailViewModel.self) { (r, recipe: RecipeModel) in
+            RecipeDetailViewModel(
+                recipe: recipe,
+                saveRecipeUseCase: r.resolve(SaveRecipeUseCase.self)!,
+                deleteRecipeUseCase: r.resolve(DeleteRecipeUseCase.self)!,
+                recipeListViewModel: r.resolve(RecipeListViewModel.self)!
+            )
+        }
+
+        container.register(RecipeDetailViewController.self) { (r, recipe: RecipeModel) in
+            let vc = RecipeDetailViewController()
+            vc.viewModel = r.resolve(RecipeDetailViewModel.self, argument: recipe)
+            return vc
+        }
+
+
         setupInitialData()
     }
     

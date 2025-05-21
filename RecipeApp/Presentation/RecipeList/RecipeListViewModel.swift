@@ -12,6 +12,7 @@ class RecipeListViewModel {
     let recipes = BehaviorRelay<[RecipeModel]>(value: [])
     let recipeTypes = BehaviorRelay<[String]>(value: [])
     let selectedType = BehaviorRelay<String?>(value: nil)
+    let refreshSubject = PublishSubject<Void>()
     private let fetchRecipesUseCase: FetchRecipesUseCase
     private let recipeTypeDataSource: RecipeTypeFileDataSource
     private let disposeBag = DisposeBag()
@@ -27,7 +28,7 @@ class RecipeListViewModel {
             do {
                 let types = try recipeTypeDataSource.fetchRecipeTypes()
                 recipeTypes.accept(types)
-                let recipes = try await fetchRecipesUseCase.execute(type: types[0])
+                let recipes = try await fetchRecipesUseCase.execute(type: selectedType.value)
                 self.recipes.accept(recipes)
             } catch {
                 print("Error: \(error)")
@@ -48,5 +49,12 @@ class RecipeListViewModel {
                 }
             })
             .disposed(by: disposeBag)
+        
+        refreshSubject
+            .subscribe(onNext: { [weak self] in
+                self?.fetchRecipes()
+            })
+            .disposed(by: disposeBag)
+
     }
 }
