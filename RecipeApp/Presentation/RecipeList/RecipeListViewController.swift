@@ -89,7 +89,8 @@ class RecipeListViewController: UIViewController {
     }
 
     @objc private func addTapped() {
-
+        let addVC = AppDIContainer.shared.container.resolve(RecipeFormViewController.self)!
+        navigationController?.pushViewController(addVC, animated: true)
     }
 }
 

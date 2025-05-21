@@ -12,14 +12,19 @@ class AppDIContainer {
     let container = Container()
 
     private init() {
+        
         container.register(CoreDataStack.self) { _ in CoreDataStack() }
         container.register(RecipeTypeFileDataSource.self) { _ in RecipeTypeFileDataSourceImpl() }
         container.register(RecipeLocalDataSource.self) { r in
             RecipeLocalDataSourceImpl(coreDataStack: r.resolve(CoreDataStack.self)!)
         }
+        
+        // MARK: Repository
         container.register(RecipeRepository.self) { r in
             RecipeRepositoryImpl(localDataSource: r.resolve(RecipeLocalDataSource.self)!)
         }
+        
+        // MARK: Use Cases
         container.register(FetchRecipesUseCase.self) { r in
             FetchRecipesUseCaseImpl(repository: r.resolve(RecipeRepository.self)!)
         }
@@ -29,6 +34,8 @@ class AppDIContainer {
         container.register(DeleteRecipeUseCase.self) { r in
             DeleteRecipeUseCaseImpl(repository: r.resolve(RecipeRepository.self)!)
         }
+        
+        // MARK: Recipe List
         container.register(RecipeListViewModel.self) { r in
             RecipeListViewModel(
                 fetchRecipesUseCase: r.resolve(FetchRecipesUseCase.self)!,
@@ -36,6 +43,7 @@ class AppDIContainer {
             )
         }
         
+        // MARK: Recipe Details
         container.register(RecipeDetailViewModel.self) { (r, recipe: RecipeModel) in
             RecipeDetailViewModel(
                 recipe: recipe,
@@ -44,10 +52,23 @@ class AppDIContainer {
                 recipeListViewModel: r.resolve(RecipeListViewModel.self)!
             )
         }
-
         container.register(RecipeDetailViewController.self) { (r, recipe: RecipeModel) in
             let vc = RecipeDetailViewController()
             vc.viewModel = r.resolve(RecipeDetailViewModel.self, argument: recipe)
+            return vc
+        }
+        
+        // MARK: Recipe Form
+        container.register(RecipeFormViewModel.self) { r in
+            RecipeFormViewModel(
+                recipeTypeDataSource: r.resolve(RecipeTypeFileDataSource.self)!,
+                saveRecipeUseCase: r.resolve(SaveRecipeUseCase.self)!,
+                recipeListViewModel: r.resolve(RecipeListViewModel.self)!
+            )
+        }
+        container.register(RecipeFormViewController.self) { r in
+            let vc = RecipeFormViewController()
+            vc.viewModel = r.resolve(RecipeFormViewModel.self)
             return vc
         }
 
