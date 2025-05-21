@@ -60,7 +60,16 @@ class RecipeLocalDataSourceImpl: RecipeLocalDataSource {
     }
 
     func deleteRecipe(id: UUID) async throws {
-
+        let context = coreDataStack.persistentContainer.viewContext
+        let request = Recipe.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as NSUUID)
+        try await context.perform {
+            let entities = try context.fetch(request)
+            for entity in entities {
+                context.delete(entity)
+            }
+            try context.save()
+        }
     }
 
 }

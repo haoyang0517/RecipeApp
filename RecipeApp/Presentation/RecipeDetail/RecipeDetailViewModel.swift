@@ -51,5 +51,6 @@ class RecipeDetailViewModel {
 
     func deleteRecipe() async throws {
         try await deleteRecipeUseCase.execute(id: recipe.id)
+        recipeListViewModel.refreshSubject.onNext(())
     }
 }
