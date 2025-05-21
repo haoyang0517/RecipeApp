@@ -11,6 +11,7 @@ target 'RecipeApp' do
     pod 'RxSwift'                     # Reactive programming
     pod 'RxCocoa'                     # RxSwift UIKit bindings
     pod 'Swinject'                    # Dependency injection
+    pod 'SnapKit'                     # Auto Layout
     #pod 'Alamofire'                  # Networking
 
   target 'RecipeAppTests' do
