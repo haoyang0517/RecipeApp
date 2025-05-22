@@ -11,6 +11,8 @@ import RxSwift
 import RxCocoa
 
 class RecipeDetailViewController: UIViewController {
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let titleSectionLabel = UILabel()
     private let titleField = UITextField()
     private let imageSectionLabel = UILabel()
@@ -37,18 +39,31 @@ class RecipeDetailViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .systemBackground
 
+        // Setup ScrollView
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        // Setup ContentView
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(scrollView)
+        }
+
         // Title Section
         titleSectionLabel.text = "Title:"
         titleSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        view.addSubview(titleSectionLabel)
+        contentView.addSubview(titleSectionLabel)
         titleSectionLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.top.equalToSuperview().offset(16)
             make.left.right.equalToSuperview().inset(16)
         }
 
         titleField.borderStyle = .roundedRect
         titleField.isEnabled = false
-        view.addSubview(titleField)
+        contentView.addSubview(titleField)
         titleField.snp.makeConstraints { make in
             make.top.equalTo(titleSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
@@ -57,16 +72,17 @@ class RecipeDetailViewController: UIViewController {
         // Image Section
         imageSectionLabel.text = "Image:"
         imageSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        view.addSubview(imageSectionLabel)
+        contentView.addSubview(imageSectionLabel)
         imageSectionLabel.snp.makeConstraints { make in
             make.top.equalTo(titleField.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
         }
         
         imageButton.isHidden = true
+        imageView.backgroundColor = .lightGray
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        view.addSubview(imageView)
+        contentView.addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.top.equalTo(imageSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
@@ -76,7 +92,7 @@ class RecipeDetailViewController: UIViewController {
         imageButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
         imageButton.tintColor = .white
         imageButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        view.addSubview(imageButton)
+        contentView.addSubview(imageButton)
         imageButton.snp.makeConstraints { make in
             make.edges.equalTo(imageView)
         }
@@ -84,14 +100,14 @@ class RecipeDetailViewController: UIViewController {
         // Type Section
         typeSectionLabel.text = "Type:"
         typeSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        view.addSubview(typeSectionLabel)
+        contentView.addSubview(typeSectionLabel)
         typeSectionLabel.snp.makeConstraints { make in
             make.top.equalTo(imageView.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
         }
 
         typeLabel.font = .systemFont(ofSize: 16, weight: .regular)
-        view.addSubview(typeLabel)
+        contentView.addSubview(typeLabel)
         typeLabel.snp.makeConstraints { make in
             make.top.equalTo(typeSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
@@ -100,7 +116,7 @@ class RecipeDetailViewController: UIViewController {
         // Ingredients Section
         ingredientsSectionLabel.text = "Ingredients:"
         ingredientsSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        view.addSubview(ingredientsSectionLabel)
+        contentView.addSubview(ingredientsSectionLabel)
         ingredientsSectionLabel.snp.makeConstraints { make in
             make.top.equalTo(typeLabel.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
@@ -109,7 +125,7 @@ class RecipeDetailViewController: UIViewController {
         ingredientsField.layer.borderWidth = 1
         ingredientsField.layer.borderColor = UIColor.systemGray.cgColor
         ingredientsField.isEditable = false
-        view.addSubview(ingredientsField)
+        contentView.addSubview(ingredientsField)
         ingredientsField.snp.makeConstraints { make in
             make.top.equalTo(ingredientsSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
@@ -119,7 +135,7 @@ class RecipeDetailViewController: UIViewController {
         // Steps Section
         stepsSectionLabel.text = "Steps:"
         stepsSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
-        view.addSubview(stepsSectionLabel)
+        contentView.addSubview(stepsSectionLabel)
         stepsSectionLabel.snp.makeConstraints { make in
             make.top.equalTo(ingredientsField.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
@@ -128,12 +144,12 @@ class RecipeDetailViewController: UIViewController {
         stepsField.layer.borderWidth = 1
         stepsField.layer.borderColor = UIColor.systemGray.cgColor
         stepsField.isEditable = false
-        view.addSubview(stepsField)
+        contentView.addSubview(stepsField)
         stepsField.snp.makeConstraints { make in
             make.top.equalTo(stepsSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
             make.height.equalTo(100)
-            make.bottom.lessThanOrEqualTo(view.safeAreaLayoutGuide).offset(-16)
+            make.bottom.equalToSuperview().offset(-16)
         }
     }
 
