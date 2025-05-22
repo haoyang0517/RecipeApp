@@ -87,40 +87,42 @@ class AppDIContainer {
 
     func setupInitialData() {
         let context = container.resolve(CoreDataStack.self)!.persistentContainer.viewContext
-        let initialRecipes = [
-            RecipeModel(id: UUID(), title: "Blueberry Pancakes", type: "Breakfast", imageData: UIImage(named: "breakfast")?.jpegData(compressionQuality: 0.8), ingredients: "Flour, Eggs, Milk, Blueberries", steps: "1. Mix ingredients \n2. Cook on skillet"),
+        
+        // Check if any recipes already exist
+        let fetchRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            let existingRecipesCount = try context.count(for: fetchRequest)
+            if existingRecipesCount > 0 {
+                print("Recipes already exist, skip init")
+                return // Skip
+            }
+            
+            let initialRecipes = [
+                RecipeModel(id: UUID(), title: "Blueberry Pancakes", type: "Breakfast", imageData: UIImage(named: "breakfast")?.jpegData(compressionQuality: 0.8), ingredients: "Flour, Eggs, Milk, Blueberries", steps: "1. Mix ingredients \n2. Cook on skillet"),
                 RecipeModel(id: UUID(), title: "Chicken Salad", type: "Lunch", imageData: UIImage(named: "lunch")?.pngData(), ingredients: "Chicken, Lettuce, Tomato, Dressing", steps: "1. Grill chicken \n2. Toss with veggies and dressing"),
                 RecipeModel(id: UUID(), title: "Beef Stir Fry", type: "Dinner", imageData: UIImage(named: "dinner")?.pngData(), ingredients: "Beef, Bell Peppers, Soy Sauce, Rice", steps: "1. Stir-fry beef and veggies \n2. Serve over rice"),
                 RecipeModel(id: UUID(), title: "Chocolate Cake", type: "Dessert", imageData: UIImage(named: "dessert")?.pngData(), ingredients: "Flour, Cocoa, Sugar, Eggs", steps: "1. Mix ingredients \n2. Bake at 350°F"),
                 RecipeModel(id: UUID(), title: "Trail Mix", type: "Snack", imageData: UIImage(named: "snack")?.pngData(), ingredients: "Nuts, Raisins, Chocolate Chips", steps: "1. Mix ingredients \n2. Store in a container"),
                 RecipeModel(id: UUID(), title: "Vegetarian Chili", type: "Vegetarian", imageData: UIImage(named: "vege")?.pngData(), ingredients: "Beans, Tomatoes, Chili Powder, Onion", steps: "1. Sauté onion \n2. Simmer with beans and spices")
             ]
-        
-        let fetchRequest: NSFetchRequest<Recipe> = Recipe.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "title IN %@", initialRecipes.map { $0.title })
-        
-        do {
-            let existingRecipes = try context.fetch(fetchRequest)
-            let existingTitles = Set(existingRecipes.map { $0.title ?? "" })
             
-            // Add only recipe with diff title
             for recipe in initialRecipes {
-                if !existingTitles.contains(recipe.title) {
-                    let entity = Recipe(context: context)
-                    entity.id = recipe.id
-                    entity.title = recipe.title
-                    entity.type = recipe.type
-                    entity.ingredients = recipe.ingredients
-                    entity.steps = recipe.steps
-                    entity.imageData = recipe.imageData
-                }
+                let entity = Recipe(context: context)
+                entity.id = recipe.id
+                entity.title = recipe.title
+                entity.type = recipe.type
+                entity.ingredients = recipe.ingredients
+                entity.steps = recipe.steps
+                entity.imageData = recipe.imageData
             }
             
             if context.hasChanges {
                 try context.save()
+                print("Initial recipes successfully added to Core Data.")
             }
         } catch {
             print("Failed to fetch or save initial data: \(error)")
         }
-    }
-}
+    }}
