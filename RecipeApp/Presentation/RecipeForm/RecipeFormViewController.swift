@@ -106,11 +106,12 @@ class RecipeFormViewController: UIViewController {
             make.height.equalTo(200)
         }
 
-        imageButton.setTitle("Select Image", for: .normal)
-        contentView.addSubview(imageButton)
+        imageButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        imageButton.tintColor = .white
+        imageButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        view.addSubview(imageButton)
         imageButton.snp.makeConstraints { make in
-            make.top.equalTo(imageView.snp.bottom).offset(8)
-            make.centerX.equalToSuperview()
+            make.edges.equalTo(imageView)
         }
 
         // Ingredients Section
@@ -122,8 +123,9 @@ class RecipeFormViewController: UIViewController {
             make.left.right.equalToSuperview().inset(16)
         }
 
-        ingredientsField.layer.borderWidth = 1
-        ingredientsField.layer.borderColor = UIColor.systemGray.cgColor
+        ingredientsField.layer.borderWidth = 0.5
+        ingredientsField.layer.borderColor = UIColor.separator.cgColor
+        ingredientsField.layer.cornerRadius = 5
         ingredientsField.text = "Enter ingredients, one per line"
         contentView.addSubview(ingredientsField)
         ingredientsField.snp.makeConstraints { make in
@@ -141,8 +143,9 @@ class RecipeFormViewController: UIViewController {
             make.left.right.equalToSuperview().inset(16)
         }
 
-        stepsField.layer.borderWidth = 1
-        stepsField.layer.borderColor = UIColor.systemGray.cgColor
+        stepsField.layer.borderWidth = 0.5
+        stepsField.layer.borderColor = UIColor.separator.cgColor
+        stepsField.layer.cornerRadius = 5
         stepsField.text = "Enter steps, one per line"
         contentView.addSubview(stepsField)
         stepsField.snp.makeConstraints { make in
@@ -220,7 +223,7 @@ class RecipeFormViewController: UIViewController {
                         try await self?.viewModel.saveRecipe()
                         self?.navigationController?.popViewController(animated: true)
                     } catch {
-                        let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                        let alert = UIAlertController(title: "Create Failure", message: error.localizedDescription, preferredStyle: .alert)
                         alert.addAction(UIAlertAction(title: "OK", style: .default))
                         self?.present(alert, animated: true)
                     }

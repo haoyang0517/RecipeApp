@@ -40,7 +40,7 @@ class RecipeFormViewModel {
 
     func saveRecipe() async throws {
         guard let type = selectedType.value, !title.value.isEmpty else {
-            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Title and type are required"])
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Title are required"])
         }
         let recipe = RecipeModel(
             id: UUID(),
