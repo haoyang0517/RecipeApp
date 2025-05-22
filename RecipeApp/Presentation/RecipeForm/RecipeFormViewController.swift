@@ -29,7 +29,7 @@ class RecipeFormViewController: UIViewController {
     private let ingredientsField = UITextView()
     private let stepsSectionLabel = UILabel()
     private let stepsField = UITextView()
-    private let saveButton = UIButton(type: .system)
+    private var saveButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
     var viewModel: RecipeFormViewModel!
     private let disposeBag = DisposeBag()
 
@@ -40,8 +40,9 @@ class RecipeFormViewController: UIViewController {
     }
 
     private func setupUI() {
-        view.backgroundColor = .systemBackground
         title = "Add Recipe"
+        view.backgroundColor = .systemBackground
+        navigationItem.rightBarButtonItem = saveButton
 
         // Setup ScrollView
         view.addSubview(scrollView)
@@ -152,17 +153,9 @@ class RecipeFormViewController: UIViewController {
             make.top.equalTo(stepsSectionLabel.snp.bottom).offset(4)
             make.left.right.equalToSuperview().inset(16)
             make.height.equalTo(100)
+            make.bottom.equalToSuperview().offset(-16)
         }
-
-        // Save Button
-        saveButton.setTitle("Save Recipe", for: .normal)
-        saveButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .bold)
-        contentView.addSubview(saveButton)
-        saveButton.snp.makeConstraints { make in
-            make.top.equalTo(stepsField.snp.bottom).offset(16)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().offset(-16) 
-        }
+        
     }
     
     private func bindViewModel() {
