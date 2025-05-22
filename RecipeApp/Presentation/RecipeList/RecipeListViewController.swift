@@ -11,8 +11,8 @@ import RxSwift
 import RxCocoa
 
 class RecipeListViewController: UIViewController {
+    private let searchBar = UISearchBar()
     private let tableView = UITableView()
-    private let pickerView = UIPickerView()
     private let filterButton = UIButton(type: .system)
     var viewModel: RecipeListViewModel
     private let disposeBag = DisposeBag()
@@ -36,54 +36,69 @@ class RecipeListViewController: UIViewController {
         title = "Recipes"
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTapped))
 
+        view.addSubview(searchBar)
         view.addSubview(tableView)
-        view.addSubview(pickerView)
         view.addSubview(filterButton)
-        tableView.snp.makeConstraints { make in
+
+        searchBar.placeholder = "Search by recipe title"
+        searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
-            make.left.right.equalToSuperview()
-            make.bottom.equalTo(pickerView.snp.top)
+            make.left.equalToSuperview()
+            make.right.equalTo(filterButton.snp.left)
         }
-        pickerView.snp.makeConstraints { make in
-            make.left.right.bottom.equalToSuperview()
-            make.height.equalTo(150)
-        }
-        filterButton.setTitle("Filter by Type", for: .normal)
+
+        filterButton.setImage(UIImage(systemName: "line.3.horizontal.decrease.circle"), for: .normal)
         filterButton.snp.makeConstraints { make in
-            make.bottom.equalTo(pickerView.snp.top).offset(-8)
-            make.centerX.equalToSuperview()
+            make.centerY.equalTo(searchBar)
+            make.right.equalToSuperview().inset(8)
+            make.width.equalTo(44)
         }
+
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(searchBar.snp.bottom)
+            make.left.right.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-8)
+        }
+
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "RecipeCell")
     }
 
     private func bindViewModel() {
-        
-        viewModel.recipeTypes
-            .bind(to: pickerView.rx.itemTitles) { _, item in item }
+        // Bind search bar
+        searchBar.rx.text.orEmpty
+            .bind(to: viewModel.searchText)
             .disposed(by: disposeBag)
 
-        pickerView.rx.modelSelected(String.self)
-            .map { $0.first }
-            .bind(to: viewModel.selectedType)
-            .disposed(by: disposeBag)
-
+        // Bind recipes to table view
         viewModel.recipes
             .bind(to: tableView.rx.items(cellIdentifier: "RecipeCell")) { _, recipe, cell in
                 cell.textLabel?.text = "\(recipe.title) (\(recipe.type))"
             }
             .disposed(by: disposeBag)
 
+        // Handle filter button tap
         filterButton.rx.tap
-            .withLatestFrom(pickerView.rx.modelSelected(String.self))
-            .map { $0.first }
-            .bind(to: viewModel.selectedType)
+            .subscribe(onNext: { [weak self] in
+                
+                // Need guard because using [weak self]
+                guard let viewModel = self?.viewModel else {
+                    return
+                }
+
+                guard let pickerVC = AppDIContainer.shared.container.resolve(RecipeTypePickerViewController.self, argument: viewModel) else {
+                    return
+                }
+                pickerVC.modalPresentationStyle = .overCurrentContext
+                pickerVC.modalTransitionStyle = .crossDissolve
+                self?.present(pickerVC, animated: true)
+            })
             .disposed(by: disposeBag)
-        
+
+        // Handle table view selection
         tableView.rx.modelSelected(RecipeModel.self)
             .subscribe(onNext: { [weak self] recipe in
                 let detailVC = AppDIContainer.shared.container.resolve(RecipeDetailViewController.self, argument: recipe)!
                 self?.navigationController?.pushViewController(detailVC, animated: true)
-
             })
             .disposed(by: disposeBag)
     }

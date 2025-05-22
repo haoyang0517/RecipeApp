@@ -43,6 +43,10 @@ class AppDIContainer {
             )
         }
         
+        container.register(RecipeTypePickerViewController.self) { (r, viewModel: RecipeListViewModel) in
+            RecipeTypePickerViewController(viewModel: viewModel)
+        }
+
         // MARK: Recipe Details
         container.register(RecipeDetailViewModel.self) { (r, recipe: RecipeModel) in
             RecipeDetailViewModel(

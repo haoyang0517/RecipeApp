@@ -12,6 +12,7 @@ class RecipeListViewModel {
     let recipes = BehaviorRelay<[RecipeModel]>(value: [])
     let recipeTypes = BehaviorRelay<[String]>(value: [])
     let selectedType = BehaviorRelay<String?>(value: nil)
+    let searchText = BehaviorRelay<String>(value: "")
     let refreshSubject = PublishSubject<Void>()
     private let fetchRecipesUseCase: FetchRecipesUseCase
     private let recipeTypeDataSource: RecipeTypeFileDataSource
@@ -20,41 +21,47 @@ class RecipeListViewModel {
     init(fetchRecipesUseCase: FetchRecipesUseCase, recipeTypeDataSource: RecipeTypeFileDataSource) {
         self.fetchRecipesUseCase = fetchRecipesUseCase
         self.recipeTypeDataSource = recipeTypeDataSource
-        bind()
+        bindData()
+        fetchRecipeTypes()
+    }
+
+    private func fetchRecipeTypes() {
+        do {
+            let types = try recipeTypeDataSource.fetchRecipeTypes()
+            recipeTypes.accept(types)
+        } catch {
+            print("Error fetching recipe types: \(error)")
+        }
     }
 
     func fetchRecipes() {
         Task {
             do {
-                let types = try recipeTypeDataSource.fetchRecipeTypes()
-                recipeTypes.accept(types)
-                let recipes = try await fetchRecipesUseCase.execute(type: selectedType.value)
-                self.recipes.accept(recipes)
+                let fetchedRecipes = try await fetchRecipesUseCase.execute(type: selectedType.value)
+                recipes.accept(fetchedRecipes)
             } catch {
-                print("Error: \(error)")
+                print("Error fetching recipes: \(error)")
             }
         }
     }
 
-    private func bind() {
-        selectedType
-            .subscribe(onNext: { [weak self] type in
+    private func bindData() {
+        Observable.combineLatest(selectedType, searchText, refreshSubject.startWith(()))
+            .debounce(.milliseconds(300), scheduler: MainScheduler.instance)
+            .subscribe(onNext: { [weak self] type, searchText, _ in
+                guard let self = self else { return }
                 Task {
                     do {
-                        let recipes = try await self?.fetchRecipesUseCase.execute(type: type)
-                        self?.recipes.accept(recipes ?? [])
+                        let fetchedRecipes = try await self.fetchRecipesUseCase.execute(type: type)
+                        let filteredRecipes = fetchedRecipes.filter { recipe in
+                            searchText.isEmpty || recipe.title.lowercased().contains(searchText.lowercased())
+                        }
+                        self.recipes.accept(filteredRecipes)
                     } catch {
-                        print("Error: \(error)")
+                        print("Error filtering recipes: \(error)")
                     }
                 }
             })
             .disposed(by: disposeBag)
-        
-        refreshSubject
-            .subscribe(onNext: { [weak self] in
-                self?.fetchRecipes()
-            })
-            .disposed(by: disposeBag)
-
     }
 }
