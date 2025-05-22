@@ -254,7 +254,9 @@ class RecipeDetailViewController: UIViewController {
                             try await self?.viewModel.saveRecipe()
                             self?.viewModel.isEditing.accept(false)
                         } catch {
-                            print("Error saving recipe: \(error)")
+                            let alert = UIAlertController(title: "Save Failure", message: error.localizedDescription, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default))
+                            self?.present(alert, animated: true)
                         }
                     }
                 } else {

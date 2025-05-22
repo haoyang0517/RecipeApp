@@ -37,6 +37,10 @@ class RecipeDetailViewModel {
     }
 
     func saveRecipe() async throws {
+        guard !title.value.isEmpty else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Title are required"])
+        }
+
         let updatedRecipe = RecipeModel(
             id: recipe.id,
             title: title.value,
