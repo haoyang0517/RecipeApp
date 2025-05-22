@@ -16,9 +16,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let rootVC: UIViewController
-        let viewModel = AppDIContainer.shared.resolve(RecipeListViewModel.self)
-        rootVC = UINavigationController(rootViewController: RecipeListViewController(viewModel: viewModel))
+        let rootVC = UINavigationController(
+            rootViewController: AppDIContainer.shared.container.resolve(RecipeListViewController.self)!
+        )
         self.window?.rootViewController = rootVC
         self.window?.makeKeyAndVisible()
 

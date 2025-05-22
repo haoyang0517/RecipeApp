@@ -42,6 +42,10 @@ class AppDIContainer {
                 fetchRecipesUseCase: r.resolve(FetchRecipesUseCase.self)!,
                 recipeTypeDataSource: r.resolve(RecipeTypeFileDataSource.self)!
             )
+        }.inObjectScope(.container)
+        
+        container.register(RecipeListViewController.self) { r in
+            RecipeListViewController(viewModel: r.resolve(RecipeListViewModel.self)!)
         }
         
         container.register(RecipeTypePickerViewController.self) { (r, viewModel: RecipeListViewModel) in
