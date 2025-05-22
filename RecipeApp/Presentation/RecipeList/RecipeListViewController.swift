@@ -93,13 +93,3 @@ class RecipeListViewController: UIViewController {
         navigationController?.pushViewController(addVC, animated: true)
     }
 }
-
-//extension RecipeListViewController: UITableViewDataSource, UITableViewDelegate {
-//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 0 }
-//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { UITableViewCell() }
-//}
-//
-//extension RecipeListViewController: UIPickerViewDataSource, UIPickerViewDelegate {
-//    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
-//    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int { viewModel.recipeTypes.value.count }
-//}
