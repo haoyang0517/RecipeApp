@@ -27,7 +27,8 @@ class RecipeListViewModel {
 
     private func fetchRecipeTypes() {
         do {
-            let types = try recipeTypeDataSource.fetchRecipeTypes()
+            var types = try recipeTypeDataSource.fetchRecipeTypes()
+            types.insert("All", at: 0)
             recipeTypes.accept(types)
         } catch {
             print("Error fetching recipe types: \(error)")

@@ -22,7 +22,7 @@ class RecipeLocalDataSourceImpl: RecipeLocalDataSource {
     func fetchRecipes(type: String?) async throws -> [RecipeModel] {
         let context = coreDataStack.persistentContainer.viewContext
         let request = Recipe.fetchRequest()
-        if let type = type {
+        if let type = type, type != "All" {
             request.predicate = NSPredicate(format: "type == %@", type)
         }
         let entities = try await context.perform { try context.fetch(request) }
