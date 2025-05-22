@@ -40,6 +40,7 @@ class RecipeListViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(filterButton)
 
+        searchBar.searchBarStyle = .minimal
         searchBar.placeholder = "Search by recipe title"
         searchBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
@@ -54,13 +55,14 @@ class RecipeListViewController: UIViewController {
             make.width.equalTo(44)
         }
 
+        tableView.separatorStyle = .none
         tableView.snp.makeConstraints { make in
             make.top.equalTo(searchBar.snp.bottom)
             make.left.right.equalToSuperview()
             make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-8)
         }
 
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "RecipeCell")
+        tableView.register(RecipeTableViewCell.self, forCellReuseIdentifier: "RecipeCell")
     }
 
     private func bindViewModel() {
@@ -71,8 +73,8 @@ class RecipeListViewController: UIViewController {
 
         // Bind recipes to table view
         viewModel.recipes
-            .bind(to: tableView.rx.items(cellIdentifier: "RecipeCell")) { _, recipe, cell in
-                cell.textLabel?.text = "\(recipe.title) (\(recipe.type))"
+            .bind(to: tableView.rx.items(cellIdentifier: "RecipeCell", cellType: RecipeTableViewCell.self)) { _, recipe, cell in
+                cell.configure(with: recipe)
             }
             .disposed(by: disposeBag)
 
