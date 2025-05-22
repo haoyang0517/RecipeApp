@@ -22,7 +22,7 @@ class RecipeDetailViewController: UIViewController {
     private let ingredientsField = UITextView()
     private let stepsSectionLabel = UILabel()
     private let stepsField = UITextView()
-    private let editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
+    private var editButton = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
     private let deleteButton = UIBarButtonItem(barButtonSystemItem: .trash, target: nil, action: nil)
     var viewModel: RecipeDetailViewModel!
     private let disposeBag = DisposeBag()
@@ -62,8 +62,10 @@ class RecipeDetailViewController: UIViewController {
             make.top.equalTo(titleField.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
         }
-
-        imageView.contentMode = .scaleAspectFit
+        
+        imageButton.isHidden = true
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
         view.addSubview(imageView)
         imageView.snp.makeConstraints { make in
             make.top.equalTo(imageSectionLabel.snp.bottom).offset(4)
@@ -71,12 +73,12 @@ class RecipeDetailViewController: UIViewController {
             make.height.equalTo(200)
         }
 
-        imageButton.setTitle("Change Image", for: .normal)
-        imageButton.isEnabled = false
+        imageButton.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        imageButton.tintColor = .white
+        imageButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         view.addSubview(imageButton)
         imageButton.snp.makeConstraints { make in
-            make.top.equalTo(imageView.snp.bottom).offset(8)
-            make.centerX.equalToSuperview()
+            make.edges.equalTo(imageView)
         }
 
         // Type Section
@@ -84,7 +86,7 @@ class RecipeDetailViewController: UIViewController {
         typeSectionLabel.font = .systemFont(ofSize: 16, weight: .bold)
         view.addSubview(typeSectionLabel)
         typeSectionLabel.snp.makeConstraints { make in
-            make.top.equalTo(imageButton.snp.bottom).offset(16)
+            make.top.equalTo(imageView.snp.bottom).offset(16)
             make.left.right.equalToSuperview().inset(16)
         }
 
@@ -137,6 +139,7 @@ class RecipeDetailViewController: UIViewController {
 
     private func setupNavigation() {
         navigationItem.rightBarButtonItems = [editButton, deleteButton]
+        self.bindEditButton()
     }
 
 
@@ -182,11 +185,31 @@ class RecipeDetailViewController: UIViewController {
         viewModel.isEditing
             .bind(onNext: { [weak self] isEditing in
                 self?.titleField.isEnabled = isEditing
-                self?.imageButton.isEnabled = isEditing
+                self?.imageButton.isHidden = !isEditing
+                
+                // Toggle editable states
                 self?.ingredientsField.isEditable = isEditing
+                self?.ingredientsField.isSelectable = isEditing
                 self?.stepsField.isEditable = isEditing
-                self?.editButton.title = isEditing ? "Save" : "Edit"
-                self?.editButton.style = isEditing ? .done : .plain
+                self?.stepsField.isSelectable = isEditing
+
+                // Apply matching visual styles
+                let backgroundColor = isEditing ? UIColor.systemBackground : UIColor.systemGray6
+
+                [self?.ingredientsField, self?.stepsField].forEach { textView in
+                    textView?.backgroundColor = backgroundColor
+                    textView?.layer.borderWidth = 0.5
+                    textView?.layer.borderColor = UIColor.separator.cgColor
+                    textView?.layer.cornerRadius = 5
+                }
+                let newButton = UIBarButtonItem(
+                    title: isEditing ? "Save" : "Edit",
+                    style: isEditing ? .done : .plain,
+                    target: self,
+                    action: nil
+                )
+                self?.editButton = newButton
+                self?.setupNavigation()
             })
             .disposed(by: disposeBag)
 
@@ -197,24 +220,6 @@ class RecipeDetailViewController: UIViewController {
                 picker.delegate = self
                 picker.sourceType = .photoLibrary
                 self?.present(picker, animated: true)
-            })
-            .disposed(by: disposeBag)
-
-        // Handle edit/save button
-        editButton.rx.tap
-            .subscribe(onNext: { [weak self] in
-                if self?.viewModel.isEditing.value == true {
-                    Task {
-                        do {
-                            try await self?.viewModel.saveRecipe()
-                            self?.viewModel.isEditing.accept(false)
-                        } catch {
-                            print("Error saving recipe: \(error)")
-                        }
-                    }
-                } else {
-                    self?.viewModel.isEditing.accept(true)
-                }
             })
             .disposed(by: disposeBag)
 
@@ -237,6 +242,26 @@ class RecipeDetailViewController: UIViewController {
             })
             .disposed(by: disposeBag)
 
+    }
+    
+    func bindEditButton() {
+        // Handle edit/save button
+        editButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                if self?.viewModel.isEditing.value == true {
+                    Task {
+                        do {
+                            try await self?.viewModel.saveRecipe()
+                            self?.viewModel.isEditing.accept(false)
+                        } catch {
+                            print("Error saving recipe: \(error)")
+                        }
+                    }
+                } else {
+                    self?.viewModel.isEditing.accept(true)
+                }
+            })
+            .disposed(by: disposeBag)
     }
     
     @objc private func deleteTapped() {
