@@ -1,4 +1,5 @@
 PODS:
+  - IQKeyboardManagerSwift (7.0.1)
   - RxCocoa (6.6.0):
     - RxRelay (= 6.6.0)
     - RxSwift (= 6.6.0)
@@ -12,6 +13,7 @@ PODS:
   - Swinject (2.8.3)
 
 DEPENDENCIES:
+  - IQKeyboardManagerSwift
   - RxCocoa
   - RxSwift
   - SDWebImage
@@ -20,6 +22,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - IQKeyboardManagerSwift
     - RxCocoa
     - RxRelay
     - RxSwift
@@ -28,6 +31,7 @@ SPEC REPOS:
     - Swinject
 
 SPEC CHECKSUMS:
+  IQKeyboardManagerSwift: 7f6b1b1d1497855d2beea7f2f10ffcc6978525b1
   RxCocoa: 44a80de90e25b739b5aeaae3c8c371a32e3343cc
   RxRelay: 45eaa5db8ee4fb50e5ebd57deec0159e97fa51e6
   RxSwift: a4b44f7d24599f674deebd1818eab82e58410632
@@ -35,6 +39,6 @@ SPEC CHECKSUMS:
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   Swinject: 893c9a543000ac2f10ee4cbaf0933c6992c935d5
 
-PODFILE CHECKSUM: aa983d326f6e46e5fe75350a9a7cf910c2376655
+PODFILE CHECKSUM: f955b1d7ea27230a159e0ac2aed367bee0b8c93f
 
 COCOAPODS: 1.16.2

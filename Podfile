@@ -12,6 +12,7 @@ target 'RecipeApp' do
     pod 'RxCocoa'                     # RxSwift UIKit bindings
     pod 'Swinject'                    # Dependency injection
     pod 'SnapKit'                     # Auto Layout
+    pod 'IQKeyboardManagerSwift'      # Keyboard Manager
     #pod 'Alamofire'                  # Networking
 
   target 'RecipeAppTests' do
